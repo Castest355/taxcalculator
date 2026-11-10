@@ -1,8 +1,10 @@
 package com.bartoszwalter.students.taxes.contract;
 
 /**
- * Common tax algorithm shared by every contract type (Template Method).
- * Subclasses only provide what differs: deductible expenses and the tax-free amount.
+ * Defines the common tax calculation algorithm.
+ *
+ * Uses the Template Method pattern to allow subclasses
+ * to provide contract-specific tax rules.
  */
 public abstract class Contract {
 
@@ -19,29 +21,66 @@ public abstract class Contract {
     protected abstract double taxFreeAmount();
 
     public final TaxCalculationResult calculateTaxes() {
-        SocialSecurity socialSecurity = SocialSecurity.calculateFor(grossIncome);
-        double taxBasis = grossIncome - socialSecurity.total();
 
-        double healthInsurance = taxBasis * TaxRates.HEALTH_INSURANCE;
-        double deductibleHealthInsurance = taxBasis * TaxRates.HEALTH_INSURANCE_DEDUCTIBLE;
+        SocialSecurity socialSecurity = SocialSecurity.calculateFor(grossIncome);
+        double totalSocialSecurity = socialSecurity.total();
+
+        double taxBasis = grossIncome - totalSocialSecurity;
+
+        double healthInsurance =
+                taxBasis * TaxRates.HEALTH_INSURANCE_RATE;
+
+        double deductibleHealthInsurance =
+                taxBasis * TaxRates.HEALTH_INSURANCE_DEDUCTIBLE_RATE;
+
+        HealthInsuranceResult healthInsuranceResult =
+                new HealthInsuranceResult(
+                        taxBasis,
+                        healthInsurance,
+                        deductibleHealthInsurance
+                );
 
         double deductibleExpenses = deductibleExpenses(taxBasis);
+
         double taxableIncome = taxBasis - deductibleExpenses;
         double roundedTaxableIncome = Math.round(taxableIncome);
 
-        double advanceTax = roundedTaxableIncome * TaxRates.ADVANCE_INCOME_TAX;
+        double advanceTax =
+                roundedTaxableIncome * TaxRates.ADVANCE_INCOME_TAX_RATE;
+
         double taxFreeAmount = taxFreeAmount();
+
         double reducedTax = advanceTax - taxFreeAmount;
-        double advanceTaxToPay = advanceTax - deductibleHealthInsurance - taxFreeAmount;
+
+        double advanceTaxToPay =
+                advanceTax - deductibleHealthInsurance - taxFreeAmount;
+
         double roundedAdvanceTaxToPay = Math.round(advanceTaxToPay);
 
-        double netIncome = grossIncome - socialSecurity.total() - healthInsurance - roundedAdvanceTaxToPay;
+        IncomeTaxResult incomeTaxResult =
+                new IncomeTaxResult(
+                        deductibleExpenses,
+                        taxableIncome,
+                        roundedTaxableIncome,
+                        advanceTax,
+                        taxFreeAmount,
+                        reducedTax,
+                        advanceTaxToPay,
+                        roundedAdvanceTaxToPay
+                );
+
+        double netIncome =
+                grossIncome
+                - totalSocialSecurity
+                - healthInsurance
+                - roundedAdvanceTaxToPay;
 
         return new TaxCalculationResult(
-                grossIncome, socialSecurity, taxBasis,
-                healthInsurance, deductibleHealthInsurance,
-                deductibleExpenses, taxableIncome, roundedTaxableIncome,
-                advanceTax, taxFreeAmount, reducedTax,
-                advanceTaxToPay, roundedAdvanceTaxToPay, netIncome);
+                grossIncome,
+                socialSecurity,
+                healthInsuranceResult,
+                incomeTaxResult,
+                netIncome
+        );
     }
 }

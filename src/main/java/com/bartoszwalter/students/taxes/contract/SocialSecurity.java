@@ -1,23 +1,32 @@
 package com.bartoszwalter.students.taxes.contract;
 
-/** Social security contributions computed from gross income. */
+/**
+ * Represents the social security contributions
+ * calculated from gross income.
+ */
 public final class SocialSecurity {
 
     private final double pension;
     private final double disability;
     private final double sickness;
 
-    private SocialSecurity(double pension, double disability, double sickness) {
+    private SocialSecurity(
+            double pension,
+            double disability,
+            double sickness
+    ) {
         this.pension = pension;
         this.disability = disability;
         this.sickness = sickness;
     }
 
     public static SocialSecurity calculateFor(double grossIncome) {
+
         return new SocialSecurity(
-                grossIncome * TaxRates.PENSION_INSURANCE,
-                grossIncome * TaxRates.DISABILITY_INSURANCE,
-                grossIncome * TaxRates.SICKNESS_INSURANCE);
+                grossIncome * TaxRates.PENSION_INSURANCE_RATE,
+                grossIncome * TaxRates.DISABILITY_INSURANCE_RATE,
+                grossIncome * TaxRates.SICKNESS_INSURANCE_RATE
+        );
     }
 
     public double pension() {

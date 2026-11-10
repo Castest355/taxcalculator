@@ -1,6 +1,9 @@
 package com.bartoszwalter.students.taxes.contract;
 
-public class CivilContract extends Contract {
+/**
+ * Defines the tax rules for civil contracts.
+ */
+public final class CivilContract extends Contract {
 
     public CivilContract(double grossIncome) {
         super(grossIncome);
