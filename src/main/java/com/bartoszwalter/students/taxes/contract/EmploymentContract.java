@@ -1,6 +1,9 @@
 package com.bartoszwalter.students.taxes.contract;
 
-public class EmploymentContract extends Contract {
+/**
+ * Defines the tax rules for employment contracts.
+ */
+public final class EmploymentContract extends Contract {
 
     public EmploymentContract(double grossIncome) {
         super(grossIncome);
